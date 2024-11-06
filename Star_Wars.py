@@ -8,17 +8,18 @@ init()
 
 enemy_skip = 0
 
+lives = 3
+
 class GameSprite(sprite.Sprite):
     def __init__(self, sprite_image, sprite_x, sprite_y, size_x, size_y, speed):
         sprite.Sprite.__init__(self)
-        self.image = transform.scale(image.load(sprite_image), (size_x, size_y))
-
+        self.image = transform.scale(image.load(sprite_image).convert_alpha(), (size_x, size_y))
         self.speed = speed
-
         #каждый спрайт долен хранить сво-во rect - прямоугольник в который он вписан
         self.rect = self.image.get_rect()
         self.rect.x = sprite_x
         self.rect.y = sprite_y
+        self.mask = mask.from_surface(self.image)
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
@@ -31,6 +32,12 @@ class Enemy(GameSprite):
             self.rect.x = randint(0, 1000)
             enemy_skip += 1
 
+class Hearts(GameSprite):
+    def __init__(self, sprite_image, sprite_x, sprite_y, size_x, size_y, speed):
+        super().__init__(sprite_image, sprite_x, sprite_y, size_x, size_y, speed)
+        self.hearts = sprite.Group()
+    def add_heart(self):
+        self.hearts.add(self)
 
 class Boss(GameSprite):
     def boss_update(self):
@@ -59,6 +66,7 @@ class Bullet(GameSprite):
         if self.rect.y < -100:
             self.kill()
 
+
 true_fire = 50
 
 enemy_num = 15
@@ -74,6 +82,19 @@ background = transform.scale(image.load('Background.png.png'), (win_width, win_h
 player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
 
 boss = Boss('DarthShip.png.png', 250, 0, 230, 200, 2)
+
+x_heart = 350
+
+
+hearts = GameSprite('heard.png', 350, 10, 50, 50, 0)
+hearts_lives_group = sprite.Group()
+
+hearts2 = GameSprite('heard.png', 450, 10, 50, 50, 0)
+hearts3 = GameSprite('heard.png', 550, 10, 50, 50, 0)
+
+hearts_lives_group.add(hearts)
+hearts_lives_group.add(hearts2)
+hearts_lives_group.add(hearts3)
 
 bullet_group = sprite.Group()
 
@@ -115,8 +136,8 @@ while game:
                         true_fire = 50
         if true_fire > 0:
             true_fire -= 1
-        collide = sprite.groupcollide(bullet_group, enemy_group, True, True)
-        collide_player = sprite.spritecollide(player, enemy_group, False)
+        collide = sprite.groupcollide(bullet_group, enemy_group, True, True, sprite.collide_mask)
+        collide_player = sprite.spritecollide(player, enemy_group, False, sprite.collide_mask)
         if collide_player:
             finish = True
             mixer.music.stop()
@@ -132,13 +153,15 @@ while game:
         player.control()
 
         counter_enemy_skip = font1.render('Пропущено: ' + str(enemy_skip), True, (152, 0, 228))
-        window.blit(counter_enemy_skip, (750, 10))
+        window.blit(counter_enemy_skip, (735, 10))
 
         bullet_group.draw(window)
         bullet_group.update()
 
         enemy_group.draw(window)
         enemy_group.update()
+
+        hearts_lives_group.draw(window)
 
     for e1 in moments:
         if e1.type == QUIT:
