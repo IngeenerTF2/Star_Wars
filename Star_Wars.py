@@ -66,6 +66,31 @@ class Bullet(GameSprite):
         if self.rect.y < -100:
             self.kill()
 
+class Explotion(sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.images = []
+        for num in range(1, 6):
+            img = image.load(f"img/exp{num}.png")
+            img = transform.scale(img, (100, 100))
+            self.images.append(img)
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.center = [500, 500]
+        self.counter = 0
+
+        def update(self):
+            explotion_speed = 4
+            explotion.conter +=1
+
+            if self.counter >= explotion_speed and self.index < len(self.image) - 1:
+                self.conter  = 0
+                self.index += 1
+                self.image = self.images[self.index]
+
+            if self.index >= len(self.image) - 1 and self.counter >= explotion_speed:
+                self.kill()
 
 true_fire = 50
 
@@ -86,11 +111,11 @@ boss = Boss('DarthShip.png.png', 250, 0, 230, 200, 2)
 x_heart = 350
 
 
-hearts = GameSprite('heard.png', 350, 10, 50, 50, 0)
+hearts = GameSprite('heart_pixel.png', 10, 250, 150, 150, 0)
 hearts_lives_group = sprite.Group()
 
-hearts2 = GameSprite('heard.png', 450, 10, 50, 50, 0)
-hearts3 = GameSprite('heard.png', 550, 10, 50, 50, 0)
+hearts2 = GameSprite('heart_pixel.png', 10, 350, 150, 150, 0)
+hearts3 = GameSprite('heart_pixel.png', 10, 450, 150, 150, 0)
 
 hearts_lives_group.add(hearts)
 hearts_lives_group.add(hearts2)
@@ -111,6 +136,8 @@ destroyed = 0
 
 font1 = font.Font(None, 50)
 ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
+
+explotion_group = sprite.Group()
 
 mixer.music.load('Test_music_S-W.mp3')
 mixer.music.set_volume(0.07)
@@ -141,10 +168,18 @@ while game:
         if collide_player:
             finish = True
             mixer.music.stop()
+        explotion_group.draw(window)
+        explotion_group.update()
         if collide:
+            explotions = Explotion()
+            explotion_group.add(explotions)
+
+
+        for col in collide:
             explotion.play()
-            enemy_num -= 1
             destroyed += 1
+            enemy = Enemy('Destroyer.png.png', randint(0, 1000), randint(-200, -30), 100, 100, randint(1, 2))
+            enemy_group.add(enemy)
             ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
 
         window.blit(background, (0, 0))
