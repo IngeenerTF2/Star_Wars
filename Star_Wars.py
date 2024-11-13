@@ -67,7 +67,7 @@ class Bullet(GameSprite):
             self.kill()
 
 class Explotion(sprite.Sprite):
-    def __init__(self):
+    def __init__(self, x_enemy, y_enemy):
         super().__init__()
         self.images = []
         for num in range(1, 6):
@@ -77,20 +77,21 @@ class Explotion(sprite.Sprite):
         self.index = 0
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
-        self.rect.center = [500, 500]
+        self.rect.center = [x_enemy, y_enemy]
         self.counter = 0
 
-        def update(self):
-            explotion_speed = 4
-            explotion.conter +=1
 
-            if self.counter >= explotion_speed and self.index < len(self.image) - 1:
-                self.conter  = 0
-                self.index += 1
-                self.image = self.images[self.index]
+    def update(self):
+        explotion_speed = 4
+        explotions.counter += 1
 
-            if self.index >= len(self.image) - 1 and self.counter >= explotion_speed:
-                self.kill()
+        if self.counter >= explotion_speed and self.index < len(self.images) - 1:
+            self.counter = 0
+            self.index += 1
+            self.image = self.images[self.index]
+
+        if self.index >= len(self.images) - 1 and self.counter >= explotion_speed:
+            self.kill()
 
 true_fire = 50
 
@@ -163,16 +164,18 @@ while game:
                         true_fire = 50
         if true_fire > 0:
             true_fire -= 1
-        collide = sprite.groupcollide(bullet_group, enemy_group, True, True, sprite.collide_mask)
+        collide = sprite.groupcollide( enemy_group, bullet_group, True, True, sprite.collide_mask)
         collide_player = sprite.spritecollide(player, enemy_group, False, sprite.collide_mask)
         if collide_player:
             finish = True
             mixer.music.stop()
-        explotion_group.draw(window)
-        explotion_group.update()
         if collide:
-            explotions = Explotion()
+            for i in collide:
+                x_enemy = i.rect.centerx
+                y_enemy = i.rect.centery
+            explotions = Explotion(x_enemy, y_enemy)
             explotion_group.add(explotions)
+
 
 
         for col in collide:
@@ -186,6 +189,9 @@ while game:
         window.blit(ships, (0, 10))
         player.reset()
         player.control()
+
+        explotion_group.draw(window)
+        explotion_group.update()
 
         counter_enemy_skip = font1.render('Пропущено: ' + str(enemy_skip), True, (152, 0, 228))
         window.blit(counter_enemy_skip, (735, 10))
