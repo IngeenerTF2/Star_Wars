@@ -4,6 +4,7 @@ from random import randint
 import sys
 import os
 
+#! тестовый коммит
 init()
 
 enemy_skip = 0
