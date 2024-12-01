@@ -40,11 +40,27 @@ class Hearts(GameSprite):
         self.hearts.add(self)
 
 class Boss(GameSprite):
+    '''движение босса влево/вправо, а так же резкое движение прямо
+             с возвратом на исходную позицию(с целью тарана) + стрельба босса'''
+    def __init__(self, sprite_image, sprite_x, sprite_y, size_x, size_y, speed):
+        super().__init__(sprite_image, sprite_x, sprite_y, size_x, size_y, speed)
+        self.derection = 'right'
+        self.x1 = randint(30, 250)
+        self.x2 = randint(300, 900)
     def boss_update(self):
-        self.rect.x += self.speed
-        if self.rect.x > 850:
-            self.rect.x = randint(0, 1000)
+        if self.rect.x >= self.x2:
+            self.derection = 'left'
+            self.x1 = randint(30, 900)
+        if self.rect.x <= self.x1:
+            self.derection = 'right'
+            self.x2 = randint(300, 900)
+        if self.derection == 'right':
+            self.rect.x += self.speed
+        else:
+            self.rect.x -= self.speed
 
+    def fire_boss(self):
+        pass
 class Player(GameSprite):
     def control(self):
         keys = key.get_pressed()
@@ -95,7 +111,7 @@ class Explotion(sprite.Sprite):
 
 true_fire = 50
 
-enemy_num = 15
+enemy_num = 3
 
 win_width = 1000
 win_hight = 1000
@@ -107,7 +123,7 @@ background = transform.scale(image.load('Background.png.png'), (win_width, win_h
 
 player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
 
-boss = Boss('DarthShip.png.png', 250, 0, 230, 200, 2)
+boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 2)
 
 x_heart = 350
 
@@ -181,7 +197,7 @@ while game:
         for col in collide:
             explotion.play()
             destroyed += 1
-            enemy = Enemy('Destroyer.png.png', randint(0, 1000), randint(-200, -30), 100, 100, randint(1, 2))
+            enemy = Enemy('Destroyer.png.png', randint(50, 950), randint(-200, -30), 100, 100, randint(1, 2))
             enemy_group.add(enemy)
             ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
 
@@ -201,6 +217,11 @@ while game:
 
         enemy_group.draw(window)
         enemy_group.update()
+
+        if destroyed == 3:
+            '''отображение босса'''
+            boss.reset()
+            boss.boss_update()
 
         hearts_lives_group.draw(window)
 
