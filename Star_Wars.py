@@ -2,6 +2,7 @@
 from pygame import *
 from random import randint
 import sys
+from time import time as timer
 import os
 
 #! тестовый коммит
@@ -61,7 +62,10 @@ class Boss(GameSprite):
             self.rect.x -= self.speed
 
     def fire_boss(self):
-        pass
+        enemy_bullet = Bullet('Enemy_Bullet.png', self.rect.centerx -25, self.rect.centery, 50, 100, -25)
+        bullet_group.add(enemy_bullet)
+
+
 class Player(GameSprite):
     def control(self):
         keys = key.get_pressed()
@@ -111,6 +115,7 @@ class Explotion(sprite.Sprite):
             self.kill()
 
 true_fire = 50
+true_fire_boss = 10000
 
 enemy_num = 3
 
@@ -168,6 +173,7 @@ explotion = mixer.Sound('explotion_sound.mp3')
 explotion.set_volume(0.07)
 
 while game:
+    start_time = timer()
     moments = event.get()
     if finish != True:
         for ev in moments:
@@ -181,7 +187,7 @@ while game:
                         true_fire = 50
         if true_fire > 0:
             true_fire -= 1
-        collide = sprite.groupcollide( enemy_group, bullet_group, True, True, sprite.collide_mask)
+        collide = sprite.groupcollide(enemy_group, bullet_group, True, True, sprite.collide_mask)
         collide_player = sprite.spritecollide(player, enemy_group, False, sprite.collide_mask)
         if collide_player:
             finish = True
@@ -219,11 +225,19 @@ while game:
         enemy_group.draw(window)
         enemy_group.update()
 
-        if destroyed == 3:
+        if destroyed >= 3:
+            end_time = timer()
             '''отображение босса'''
             boss.reset()
             boss.boss_update()
-
+            boss.fire_boss()
+            if end_time - start_time >= 1:
+                end_time = timer()
+                print(end_time - start_time)
+            else:
+                print(end_time - start_time)
+                bullet_sound.play()
+                boss.fire_boss()
         hearts_lives_group.draw(window)
 
     for e1 in moments:
