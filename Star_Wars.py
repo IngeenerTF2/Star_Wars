@@ -173,9 +173,9 @@ bullet_sound.set_volume(0.07)
 
 explotion = mixer.Sound('explotion_sound.mp3')
 explotion.set_volume(0.07)
-
+start_time = timer()
 while game:
-    start_time = timer()
+    
     moments = event.get()
     if finish != True:
         for ev in moments:
