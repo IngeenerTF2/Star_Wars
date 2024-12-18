@@ -62,8 +62,8 @@ class Boss(GameSprite):
             self.rect.x -= self.speed
 
     def fire_boss(self):
-        enemy_bullet = Bullet('Enemy_Bullet.png', self.rect.centerx -25, self.rect.centery, 50, 100, -25)
-        bullet_group.add(enemy_bullet)
+        enemy_and_boss_bullet = Bullet('Enemy_Bullet.png', self.rect.centerx -25, self.rect.centery, 50, 100, -25)
+        enemy_bullet.add(enemy_and_boss_bullet)
 
 
 class Player(GameSprite):
@@ -146,6 +146,8 @@ hearts_lives_group.add(hearts3)
 
 bullet_group = sprite.Group()
 
+enemy_bullet = sprite.Group()
+
 enemy_group = sprite.Group()
 for i in range(enemy_num):
     enemy = Enemy('Destroyer.png.png', randint(0,1000), randint(-200, -30), 100, 100, randint(1,2))
@@ -219,25 +221,27 @@ while game:
         counter_enemy_skip = font1.render('Пропущено: ' + str(enemy_skip), True, (152, 0, 228))
         window.blit(counter_enemy_skip, (735, 10))
 
-        bullet_group.draw(window)
-        bullet_group.update()
-
         enemy_group.draw(window)
         enemy_group.update()
 
-        if destroyed >= 3:
+        bullet_group.draw(window)
+        bullet_group.update()
+
+        if destroyed >= 1:
             end_time = timer()
             '''отображение босса'''
             boss.reset()
             boss.boss_update()
-            boss.fire_boss()
-            if end_time - start_time >= 1:
-                end_time = timer()
+            #boss.fire_boss()
+            if end_time - start_time <= 2:
                 print(end_time - start_time)
             else:
                 print(end_time - start_time)
+                start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
+        enemy_bullet.draw(window)
+        enemy_bullet.update()
         hearts_lives_group.draw(window)
 
     for e1 in moments:
