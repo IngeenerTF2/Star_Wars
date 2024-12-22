@@ -66,6 +66,7 @@ class Boss(GameSprite):
         enemy_bullet.add(enemy_and_boss_bullet)
 
 
+
 class Player(GameSprite):
     def control(self):
         keys = key.get_pressed()
@@ -126,12 +127,12 @@ window = display.set_mode((win_width, win_hight))
 
 background = transform.scale(image.load('Background.png.png'), (win_width, win_hight))
 
-
 player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
 
 boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 2)
 
 x_heart = 350
+
 
 
 hearts = GameSprite('heart_pixel.png', 10, 250, 150, 150, 0)
@@ -149,6 +150,10 @@ bullet_group = sprite.Group()
 enemy_bullet = sprite.Group()
 
 enemy_group = sprite.Group()
+
+boss_group = sprite.Group()
+boss_group.add(boss)
+
 for i in range(enemy_num):
     enemy = Enemy('Destroyer.png.png', randint(0,1000), randint(-200, -30), 100, 100, randint(1,2))
     enemy_group.add(enemy)
@@ -191,6 +196,13 @@ while game:
             true_fire -= 1
         collide = sprite.groupcollide(enemy_group, bullet_group, True, True, sprite.collide_mask)
         collide_player = sprite.spritecollide(player, enemy_group, False, sprite.collide_mask)
+
+        collide_boss = sprite.spritecollide(player, boss_group, False, sprite.collide_mask)
+
+        if collide_boss:
+            finish = True
+            mixer.music.stop()
+
         if collide_player:
             finish = True
             mixer.music.stop()
