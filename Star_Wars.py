@@ -245,10 +245,7 @@ while game:
             boss.reset()
             boss.boss_update()
             #boss.fire_boss()
-            if end_time - start_time <= 2:
-                print(end_time - start_time)
-            else:
-                print(end_time - start_time)
+            if end_time - start_time >= 2:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
