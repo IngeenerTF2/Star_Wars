@@ -49,7 +49,7 @@ class Boss(GameSprite):
         self.derection = 'right'
         self.x1 = randint(30, 250)
         self.x2 = randint(300, 900)
-    def boss_update(self):
+    def update(self):
         if self.rect.x >= self.x2:
             self.derection = 'left'
             self.x1 = randint(30, 900)
@@ -120,6 +120,8 @@ true_fire_boss = 10000
 
 enemy_num = 3
 
+lives_boss = 3
+
 win_width = 1000
 win_hight = 1000
 
@@ -133,7 +135,7 @@ boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 2)
 
 x_heart = 350
 
-
+explotion_boss = sprite.Group()
 
 hearts = GameSprite('heart_pixel.png', 10, 250, 150, 150, 0)
 hearts_lives_group = sprite.Group()
@@ -179,6 +181,17 @@ bullet_sound.set_volume(0.07)
 explotion = mixer.Sound('explotion_sound.mp3')
 explotion.set_volume(0.07)
 start_time = timer()
+
+x_enemy = 0
+y_enemy = 0
+'''def kill_boss(collide_boss_die):
+    global x_enemy, y_enemy, explotions
+    for i in collide_boss_die:
+        x_enemy = i.rect.centerx
+        y_enemy = i.rect.centery
+    explotions = Explotion(x_enemy, y_enemy)
+    explotion_group.add(explotions)'''
+
 while game:
     
     moments = event.get()
@@ -239,16 +252,31 @@ while game:
         bullet_group.draw(window)
         bullet_group.update()
 
-        if destroyed >= 1:
+        if destroyed >= 1 and lives_boss > 0:
+            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
+            if collide_bullet_boss:
+                lives_boss -= 1
             end_time = timer()
             '''отображение босса'''
-            boss.reset()
-            boss.boss_update()
+            boss_group.draw(window)
+            boss_group.update()
             #boss.fire_boss()
-            if end_time - start_time >= 2:
+            if end_time - start_time >= 4:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
+        if lives_boss < 0:
+            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
+            print(collide_bullet_boss)
+            if collide_bullet_boss:
+                print(collide_bullet_boss)
+                for i in collide_bullet_boss:
+                    x_enemy = i.rect.centerx
+                    y_enemy = i.rect.centery
+                explotions = Explotion(x_enemy, y_enemy)
+                explotion_boss.add(explotions)
+        explotion_boss.draw(window)
+        explotion_boss.update()
         enemy_bullet.draw(window)
         enemy_bullet.update()
         hearts_lives_group.draw(window)
