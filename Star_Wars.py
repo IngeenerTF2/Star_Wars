@@ -92,8 +92,8 @@ class Explotion(sprite.Sprite):
     def __init__(self, x_enemy, y_enemy):
         super().__init__()
         self.images = []
-        for num in range(1, 6):
-            img = image.load(f"img/exp{num}.png")
+        for num in range(1, 8):
+            img = image.load(f"img/enemy_explotion{num}.png")
             img = transform.scale(img, (100, 100))
             self.images.append(img)
         self.index = 0
