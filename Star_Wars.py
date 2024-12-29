@@ -92,7 +92,7 @@ class Explotion(sprite.Sprite):
     def __init__(self, x_enemy, y_enemy):
         super().__init__()
         self.images = []
-        for num in range(1, 8):
+        for num in range(1, 9):
             img = image.load(f"img/enemy_explotion{num}.png")
             img = transform.scale(img, (100, 100))
             self.images.append(img)
@@ -101,7 +101,6 @@ class Explotion(sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = [x_enemy, y_enemy]
         self.counter = 0
-
 
     def update(self):
         explotion_speed = 4
@@ -114,6 +113,15 @@ class Explotion(sprite.Sprite):
 
         if self.index >= len(self.images) - 1 and self.counter >= explotion_speed:
             self.kill()
+
+class Boss_explotion(Explotion):
+    def __init__(self, x_enemy, y_enemy):
+        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy )
+        self.images = []
+        for num in range(1, 11):
+            img = image.load(f"boss_expl/boom{num}.png")
+            img = transform.scale(img, (200, 200))
+            self.images.append(img)
 
 true_fire = 50
 true_fire_boss = 10000
@@ -280,13 +288,11 @@ while game:
                 bullet_sound.play()
                 boss.fire_boss()
             if collide_bullet_boss:
-                print(collide_bullet_boss)
                 for i in collide_bullet_boss:
                     x_enemy = i.rect.centerx
                     y_enemy = i.rect.centery
-                explotions = Explotion(x_enemy, y_enemy)
+                explotions = Boss_explotion(x_enemy, y_enemy)
                 explotion_boss.add(explotions)
-        print(boss_group)        
         explotion_boss.draw(window)
         explotion_boss.update()
 
