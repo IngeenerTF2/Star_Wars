@@ -192,6 +192,8 @@ y_enemy = 0
     explotions = Explotion(x_enemy, y_enemy)
     explotion_group.add(explotions)'''
 
+bullet_group_boss = sprite.Group()
+
 while game:
     
     moments = event.get()
@@ -240,8 +242,7 @@ while game:
         player.reset()
         player.control()
 
-        explotion_group.draw(window)
-        explotion_group.update()
+        
 
         counter_enemy_skip = font1.render('Пропущено: ' + str(enemy_skip), True, (152, 0, 228))
         window.blit(counter_enemy_skip, (735, 10))
@@ -252,7 +253,7 @@ while game:
         bullet_group.draw(window)
         bullet_group.update()
 
-        if destroyed >= 1 and lives_boss > 0:
+        if destroyed >= 1 and lives_boss >= 1:
             collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
             if collide_bullet_boss:
                 lives_boss -= 1
@@ -265,9 +266,19 @@ while game:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
-        if lives_boss < 0:
-            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
-            print(collide_bullet_boss)
+        elif lives_boss <= 1:
+            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, True, True, sprite.collide_mask)
+            if collide_bullet_boss:
+                lives_boss -= 1
+            end_time = timer()
+            '''отображение босса'''
+            boss_group.draw(window)
+            boss_group.update()
+            #boss.fire_boss()
+            if end_time - start_time >= 4:
+                start_time = timer()
+                bullet_sound.play()
+                boss.fire_boss()
             if collide_bullet_boss:
                 print(collide_bullet_boss)
                 for i in collide_bullet_boss:
@@ -275,11 +286,17 @@ while game:
                     y_enemy = i.rect.centery
                 explotions = Explotion(x_enemy, y_enemy)
                 explotion_boss.add(explotions)
+        print(boss_group)        
         explotion_boss.draw(window)
         explotion_boss.update()
-        enemy_bullet.draw(window)
-        enemy_bullet.update()
+
+        if lives_boss > 0:
+            enemy_bullet.draw(window)
+            enemy_bullet.update()
+
         hearts_lives_group.draw(window)
+        explotion_group.draw(window)
+        explotion_group.update()
 
     for e1 in moments:
         if e1.type == QUIT:
