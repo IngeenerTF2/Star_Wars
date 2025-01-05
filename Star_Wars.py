@@ -137,6 +137,8 @@ window = display.set_mode((win_width, win_hight))
 
 background = transform.scale(image.load('Background.png.png'), (win_width, win_hight))
 
+you_lose = transform.scale(image.load('you_lose.png'), (win_width, win_hight))
+
 player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
 
 boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 2)
@@ -160,6 +162,9 @@ bullet_group = sprite.Group()
 enemy_bullet = sprite.Group()
 
 enemy_group = sprite.Group()
+
+player_group = sprite.Group()
+player_group.add(player)
 
 boss_group = sprite.Group()
 boss_group.add(boss)
@@ -203,7 +208,9 @@ y_enemy = 0
 bullet_group_boss = sprite.Group()
 
 while game:
-    
+    if lives <= 0:
+        finish = True
+        window.blit(you_lose, (0, 0))
     moments = event.get()
     if finish != True:
         for ev in moments:
@@ -222,6 +229,13 @@ while game:
 
         collide_boss = sprite.spritecollide(player, boss_group, False, sprite.collide_mask)
 
+        lives_collide = sprite.groupcollide(player_group, enemy_bullet, False, True, sprite.collide_mask)
+
+        if lives_collide:
+            lives -= 1
+
+
+
         if collide_boss:
             finish = True
             mixer.music.stop()
@@ -229,6 +243,7 @@ while game:
         if collide_player:
             finish = True
             mixer.music.stop()
+
         if collide:
             for i in collide:
                 x_enemy = i.rect.centerx
@@ -270,7 +285,7 @@ while game:
             boss_group.draw(window)
             boss_group.update()
             #boss.fire_boss()
-            if end_time - start_time >= 4:
+            if end_time - start_time >= 1:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
