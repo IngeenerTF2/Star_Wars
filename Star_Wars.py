@@ -137,7 +137,9 @@ window = display.set_mode((win_width, win_hight))
 
 background = transform.scale(image.load('Background.png.png'), (win_width, win_hight))
 
-you_lose = transform.scale(image.load('you_lose.png'), (win_width, win_hight))
+you_lose = transform.scale(image.load('overtv.png'), (win_width, win_hight))
+
+you_win = transform.scale(image.load('wintv.png'), (win_width, win_hight))
 
 player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
 
@@ -184,12 +186,16 @@ ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
 
 explotion_group = sprite.Group()
 
-mixer.music.load('Test_music_S-W.mp3')
+mixer.music.load('background_music.mp3')
 mixer.music.set_volume(0.07)
 mixer.music.play(-1)
 
 bullet_sound = mixer.Sound('blaster.mp3')
 bullet_sound.set_volume(0.07)
+
+lose_music = mixer.Sound('lose_music.mp3')
+lose_music.set_volume(0.07)
+
 
 explotion = mixer.Sound('explotion_sound.mp3')
 explotion.set_volume(0.07)
@@ -209,8 +215,10 @@ bullet_group_boss = sprite.Group()
 
 while game:
     if lives <= 0:
+        mixer.music.stop()
         finish = True
         window.blit(you_lose, (0, 0))
+
     moments = event.get()
     if finish != True:
         for ev in moments:
@@ -238,11 +246,15 @@ while game:
 
         if collide_boss:
             finish = True
-            mixer.music.stop()
 
         if collide_player:
             finish = True
             mixer.music.stop()
+            #lose_music.play()
+            mixer.music.load('lose_music.mp3')
+            mixer.music.set_volume(0.07)
+            mixer.music.play(-1)
+
 
         if collide:
             for i in collide:
