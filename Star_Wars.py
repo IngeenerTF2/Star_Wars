@@ -123,6 +123,15 @@ class Boss_explotion(Explotion):
             img = transform.scale(img, (200, 200))
             self.images.append(img)
 
+class Heard_explotion(Explotion):
+    def __init__(self, x_enemy, y_enemy):
+        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy )
+        self.images = []
+        for num in range(1, 9):
+            img = image.load(f"crashed_heard/heard{num}.png")
+            img = transform.scale(img, (200, 200))
+            self.images.append(img)
+
 true_fire = 50
 true_fire_boss = 10000
 
@@ -145,19 +154,15 @@ player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
 
 boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 2)
 
-x_heart = 350
-
 explotion_boss = sprite.Group()
 
-hearts = GameSprite('heart_pixel.png', 10, 250, 150, 150, 0)
-hearts_lives_group = sprite.Group()
+hearts_list = []
+heart_y = 250
 
-hearts2 = GameSprite('heart_pixel.png', 10, 350, 150, 150, 0)
-hearts3 = GameSprite('heart_pixel.png', 10, 450, 150, 150, 0)
-
-hearts_lives_group.add(hearts)
-hearts_lives_group.add(hearts2)
-hearts_lives_group.add(hearts3)
+for i in range(3):
+    heart = GameSprite('crashed_heard/heard1.png', 10, heart_y, 150, 150, 0)
+    hearts_list.append(heart)
+    heart_y += 165
 
 bullet_group = sprite.Group()
 
@@ -186,6 +191,8 @@ ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
 
 explotion_group = sprite.Group()
 
+heart_group_explotion = sprite.Group()
+
 mixer.music.load('background_music.mp3')
 mixer.music.set_volume(0.07)
 mixer.music.play(-1)
@@ -197,7 +204,7 @@ lose_music = mixer.Sound('lose_music.mp3')
 lose_music.set_volume(0.07)
 
 
-explotion = mixer.Sound('explotion_sound.mp3')
+explotion = mixer.Sound('sound_explotion.ogg')
 explotion.set_volume(0.07)
 start_time = timer()
 
@@ -236,10 +243,14 @@ while game:
         collide_player = sprite.spritecollide(player, enemy_group, False, sprite.collide_mask)
 
         collide_boss = sprite.spritecollide(player, boss_group, False, sprite.collide_mask)
-
+        #соприкосновение пули и игрока
         lives_collide = sprite.groupcollide(player_group, enemy_bullet, False, True, sprite.collide_mask)
 
         if lives_collide:
+            x_heart = hearts_list[lives-1].rect.centerx
+            y_heart = hearts_list[lives-1].rect.centery
+            heart_anim = Heard_explotion(x_heart, y_heart)
+            heart_group_explotion.add(heart_anim)
             lives -= 1
 
 
@@ -327,9 +338,12 @@ while game:
             enemy_bullet.draw(window)
             enemy_bullet.update()
 
-        hearts_lives_group.draw(window)
+        for i in range(3):
+            hearts_list[i].reset()
         explotion_group.draw(window)
         explotion_group.update()
+        heart_group_explotion.draw(window)
+        heart_group_explotion.update()
 
     for e1 in moments:
         if e1.type == QUIT:
