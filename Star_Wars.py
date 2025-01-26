@@ -131,6 +131,17 @@ class Heard_explotion(Explotion):
             img = image.load(f"crashed_heard/heard{num}.png")
             img = transform.scale(img, (200, 200))
             self.images.append(img)
+    def update(self):
+        explotion_speed = 10
+        explotions.counter += 1
+
+        if self.counter >= explotion_speed and self.index < len(self.images) - 1:
+            self.counter = 0
+            self.index += 1
+            self.image = self.images[self.index]
+
+        if self.index >= len(self.images) - 1 and self.counter >= explotion_speed:
+            self.kill()
 
 true_fire = 50
 true_fire_boss = 10000
@@ -246,12 +257,7 @@ while game:
         #соприкосновение пули и игрока
         lives_collide = sprite.groupcollide(player_group, enemy_bullet, False, True, sprite.collide_mask)
 
-        if lives_collide:
-            x_heart = hearts_list[lives-1].rect.centerx
-            y_heart = hearts_list[lives-1].rect.centery
-            heart_anim = Heard_explotion(x_heart, y_heart)
-            heart_group_explotion.add(heart_anim)
-            lives -= 1
+
 
 
 
@@ -331,17 +337,26 @@ while game:
                     y_enemy = i.rect.centery
                 explotions = Boss_explotion(x_enemy, y_enemy)
                 explotion_boss.add(explotions)
-        explotion_boss.draw(window)
-        explotion_boss.update()
+        #explotion_boss.draw(window)
+        #explotion_boss.update()
 
         if lives_boss > 0:
             enemy_bullet.draw(window)
             enemy_bullet.update()
 
-        for i in range(3):
+        for i in range(len(hearts_list)):
             hearts_list[i].reset()
-        explotion_group.draw(window)
-        explotion_group.update()
+        #explotion_group.draw(window)
+        #explotion_group.update()
+        if lives_collide:
+            x_heart = hearts_list[lives-1].rect.centerx
+            y_heart = hearts_list[lives-1].rect.centery
+            hearts_list.remove(hearts_list[0])
+            heart_anim = Heard_explotion(x_heart, y_heart)
+            heart_group_explotion.add(heart_anim)
+            for i in heart_group_explotion:
+                print(i)
+            lives -= 1
         heart_group_explotion.draw(window)
         heart_group_explotion.update()
 
