@@ -104,7 +104,7 @@ class Explotion(sprite.Sprite):
 
     def update(self):
         explotion_speed = 4
-        explotions.counter += 1
+        self.counter += 1
 
         if self.counter >= explotion_speed and self.index < len(self.images) - 1:
             self.counter = 0
@@ -125,7 +125,7 @@ class Boss_explotion(Explotion):
 
 class Heard_explotion(Explotion):
     def __init__(self, x_enemy, y_enemy):
-        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy )
+        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy)
         self.images = []
         for num in range(1, 9):
             img = image.load(f"crashed_heard/heard{num}.png")
@@ -133,7 +133,7 @@ class Heard_explotion(Explotion):
             self.images.append(img)
     def update(self):
         explotion_speed = 10
-        explotions.counter += 1
+        self.counter += 1
 
         if self.counter >= explotion_speed and self.index < len(self.images) - 1:
             self.counter = 0
@@ -340,17 +340,18 @@ while game:
         #explotion_boss.draw(window)
         #explotion_boss.update()
 
+        #explotion_group.draw(window)
+        #explotion_group.update()
+
         if lives_boss > 0:
             enemy_bullet.draw(window)
             enemy_bullet.update()
 
         for i in range(len(hearts_list)):
             hearts_list[i].reset()
-        #explotion_group.draw(window)
-        #explotion_group.update()
         if lives_collide:
-            x_heart = hearts_list[lives-1].rect.centerx
-            y_heart = hearts_list[lives-1].rect.centery
+            x_heart = hearts_list[0].rect.centerx
+            y_heart = hearts_list[0].rect.centery
             hearts_list.remove(hearts_list[0])
             heart_anim = Heard_explotion(x_heart, y_heart)
             heart_group_explotion.add(heart_anim)
