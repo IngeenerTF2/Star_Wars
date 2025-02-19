@@ -116,21 +116,26 @@ class Explotion(sprite.Sprite):
 
 class Boss_explotion(Explotion):
     def __init__(self, x_enemy, y_enemy):
-        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy )
+        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy)
         self.images = []
         for num in range(1, 11):
             img = image.load(f"boss_expl/boom{num}.png")
             img = transform.scale(img, (200, 200))
             self.images.append(img)
 
-class Heard_explotion(Explotion):
+class Heard_explotion(sprite.Sprite):
     def __init__(self, x_enemy, y_enemy):
-        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy)
+        super().__init__()
         self.images = []
-        for num in range(1, 9):
+        for num in range(2, 9):
             img = image.load(f"crashed_heard/heard{num}.png")
             img = transform.scale(img, (200, 200))
             self.images.append(img)
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.center = [x_enemy, y_enemy]
+        self.counter = 0
     def update(self):
         explotion_speed = 10
         self.counter += 1
@@ -337,11 +342,11 @@ while game:
                     y_enemy = i.rect.centery
                 explotions = Boss_explotion(x_enemy, y_enemy)
                 explotion_boss.add(explotions)
-        #explotion_boss.draw(window)
-        #explotion_boss.update()
+        explotion_boss.draw(window)
+        explotion_boss.update()
 
-        #explotion_group.draw(window)
-        #explotion_group.update()
+        explotion_group.draw(window)
+        explotion_group.update()
 
         if lives_boss > 0:
             enemy_bullet.draw(window)
@@ -355,8 +360,6 @@ while game:
             hearts_list.remove(hearts_list[0])
             heart_anim = Heard_explotion(x_heart, y_heart)
             heart_group_explotion.add(heart_anim)
-            for i in heart_group_explotion:
-                print(i)
             lives -= 1
         heart_group_explotion.draw(window)
         heart_group_explotion.update()
