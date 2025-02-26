@@ -47,24 +47,35 @@ class Boss(GameSprite):
     def __init__(self, sprite_image, sprite_x, sprite_y, size_x, size_y, speed):
         super().__init__(sprite_image, sprite_x, sprite_y, size_x, size_y, speed)
         self.derection = 'right'
+        self.flag = True
         self.x1 = randint(30, 250)
         self.x2 = randint(300, 900)
     def update(self):
-        if self.rect.x >= self.x2:
-            self.derection = 'left'
-            self.x1 = randint(30, 900)
-        if self.rect.x <= self.x1:
-            self.derection = 'right'
-            self.x2 = randint(300, 900)
-        if self.derection == 'right':
-            self.rect.x += self.speed
-        else:
-            self.rect.x -= self.speed
+        if self.flag:
+            if self.rect.x >= self.x2:
+                self.derection = 'left'
+                self.x1 = randint(30, 900)
+            if self.rect.x <= self.x1:
+                self.derection = 'right'
+                self.x2 = randint(300, 900)
+            if self.derection == 'right':
+                self.rect.x += self.speed
+            else:
+                self.rect.x -= self.speed
 
     def fire_boss(self):
         enemy_and_boss_bullet = Bullet('Enemy_Bullet.png', self.rect.centerx -25, self.rect.centery, 50, 100, -25)
         enemy_bullet.add(enemy_and_boss_bullet)
 
+    def ram(self):
+        if not self.flag:
+            self.rect.y += self.speed
+            if self.rect.y >= 700:
+                print('таран')
+                self.flag = True
+    def comeback(self):
+        if self.flag and self.rect.y >= 100:
+            self.rect.y -= self.speed
 
 
 class Player(GameSprite):
@@ -223,6 +234,7 @@ lose_music.set_volume(0.07)
 explotion = mixer.Sound('sound_explotion.ogg')
 explotion.set_volume(0.07)
 start_time = timer()
+ram_time_start = timer()
 
 x_enemy = 0
 y_enemy = 0
@@ -315,6 +327,7 @@ while game:
             if collide_bullet_boss:
                 lives_boss -= 1
             end_time = timer()
+            ram_time = timer()
             '''отображение босса'''
             boss_group.draw(window)
             boss_group.update()
@@ -323,6 +336,12 @@ while game:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
+            if ram_time - ram_time_start >= 5:
+                ram_time_start = timer()
+                boss.flag = False
+            boss.ram()
+            boss.comeback()
+
         elif lives_boss <= 1:
             collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, True, True, sprite.collide_mask)
             if collide_bullet_boss:
