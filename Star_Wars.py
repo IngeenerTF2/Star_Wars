@@ -51,7 +51,7 @@ class Boss(GameSprite):
         self.x1 = randint(30, 250)
         self.x2 = randint(300, 900)
     def update(self):
-        if self.flag:
+        if self.flag and self.rect.y <= 100:
             if self.rect.x >= self.x2:
                 self.derection = 'left'
                 self.x1 = randint(30, 900)
@@ -73,6 +73,7 @@ class Boss(GameSprite):
             if self.rect.y >= 700:
                 print('таран')
                 self.flag = True
+
     def comeback(self):
         if self.flag and self.rect.y >= 100:
             self.rect.y -= self.speed
@@ -336,9 +337,11 @@ while game:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
+
             if ram_time - ram_time_start >= 5:
-                ram_time_start = timer()
                 boss.flag = False
+                if boss.rect.y <= 100:
+                    ram_time_start = timer()
             boss.ram()
             boss.comeback()
 
@@ -349,7 +352,6 @@ while game:
             end_time = timer()
             '''отображение босса'''
             boss_group.draw(window)
-            boss_group.update()
             #boss.fire_boss()
             if end_time - start_time >= 4:
                 start_time = timer()
