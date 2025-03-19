@@ -50,14 +50,15 @@ class Boss(GameSprite):
         self.flag = True
         self.x1 = randint(30, 250)
         self.x2 = randint(300, 900)
+        self.ram_speed = 10
     def update(self):
         if self.flag and self.rect.y <= 100:
             if self.rect.x >= self.x2:
                 self.derection = 'left'
-                self.x1 = randint(30, 900)
+                self.x1 = randint(0, 500)
             if self.rect.x <= self.x1:
                 self.derection = 'right'
-                self.x2 = randint(300, 900)
+                self.x2 = randint(600, 1000)
             if self.derection == 'right':
                 self.rect.x += self.speed
             else:
@@ -67,11 +68,12 @@ class Boss(GameSprite):
         enemy_and_boss_bullet = Bullet('Enemy_Bullet.png', self.rect.centerx -25, self.rect.centery, 50, 100, -25)
         enemy_bullet.add(enemy_and_boss_bullet)
 
+
+
     def ram(self):
         if not self.flag:
-            self.rect.y += self.speed
+            self.rect.y += self.ram_speed
             if self.rect.y >= 700:
-                print('таран')
                 self.flag = True
 
     def comeback(self):
@@ -180,7 +182,7 @@ you_win = transform.scale(image.load('wintv.png'), (win_width, win_hight))
 
 player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
 
-boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 2)
+boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 3)
 
 explotion_boss = sprite.Group()
 
@@ -239,13 +241,6 @@ ram_time_start = timer()
 
 x_enemy = 0
 y_enemy = 0
-'''def kill_boss(collide_boss_die):
-    global x_enemy, y_enemy, explotions
-    for i in collide_boss_die:
-        x_enemy = i.rect.centerx
-        y_enemy = i.rect.centery
-    explotions = Explotion(x_enemy, y_enemy)
-    explotion_group.add(explotions)'''
 
 bullet_group_boss = sprite.Group()
 
@@ -275,17 +270,12 @@ while game:
         #соприкосновение пули и игрока
         lives_collide = sprite.groupcollide(player_group, enemy_bullet, False, True, sprite.collide_mask)
 
-
-
-
-
         if collide_boss:
             finish = True
 
         if collide_player:
             finish = True
             mixer.music.stop()
-            #lose_music.play()
             mixer.music.load('lose_music.mp3')
             mixer.music.set_volume(0.07)
             mixer.music.play(-1)
@@ -332,7 +322,6 @@ while game:
             '''отображение босса'''
             boss_group.draw(window)
             boss_group.update()
-            #boss.fire_boss()
             if end_time - start_time >= 1:
                 start_time = timer()
                 bullet_sound.play()
@@ -352,7 +341,6 @@ while game:
             end_time = timer()
             '''отображение босса'''
             boss_group.draw(window)
-            #boss.fire_boss()
             if end_time - start_time >= 4:
                 start_time = timer()
                 bullet_sound.play()
