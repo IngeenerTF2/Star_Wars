@@ -165,9 +165,9 @@ class Heard_explotion(sprite.Sprite):
 true_fire = 50
 true_fire_boss = 10000
 
-enemy_num = 3
+enemy_num = 15
 
-lives_boss = 3
+lives_boss = 5
 
 win_width = 1000
 win_hight = 1000
@@ -245,10 +245,6 @@ y_enemy = 0
 bullet_group_boss = sprite.Group()
 
 while game:
-    if lives <= 0:
-        mixer.music.stop()
-        finish = True
-        window.blit(you_lose, (0, 0))
 
     moments = event.get()
     if finish != True:
@@ -264,21 +260,25 @@ while game:
         if true_fire > 0:
             true_fire -= 1
         collide = sprite.groupcollide(enemy_group, bullet_group, True, True, sprite.collide_mask)
-        collide_player = sprite.spritecollide(player, enemy_group, False, sprite.collide_mask)
+        collide_player = sprite.spritecollide(player, enemy_group, True, sprite.collide_mask)
 
         collide_boss = sprite.spritecollide(player, boss_group, False, sprite.collide_mask)
         #соприкосновение пули и игрока
         lives_collide = sprite.groupcollide(player_group, enemy_bullet, False, True, sprite.collide_mask)
 
         if collide_boss:
-            finish = True
+            lives_boss -= 1
+            lives -= 1
+            player.rect.x += 105
+            player.rect.y += 105
+            print()
+
 
         if collide_player:
-            finish = True
-            mixer.music.stop()
-            mixer.music.load('lose_music.mp3')
-            mixer.music.set_volume(0.07)
-            mixer.music.play(-1)
+            lives -= 1
+            player.rect.x += 75
+            player.rect.y += 75
+            print()
 
 
         if collide:
@@ -293,8 +293,6 @@ while game:
         for col in collide:
             explotion.play()
             destroyed += 1
-            enemy = Enemy('Destroyer.png.png', randint(50, 950), randint(-200, -30), 100, 100, randint(1, 2))
-            enemy_group.add(enemy)
             ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
 
         window.blit(background, (0, 0))
@@ -313,7 +311,7 @@ while game:
         bullet_group.draw(window)
         bullet_group.update()
 
-        if destroyed >= 1 and lives_boss >= 1:
+        if destroyed >= 15 and lives_boss >= 1:
             collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
             if collide_bullet_boss:
                 lives_boss -= 1
@@ -372,12 +370,24 @@ while game:
             lives -= 1
         heart_group_explotion.draw(window)
         heart_group_explotion.update()
+        if lives <= 0:
+            mixer.music.stop()
+            finish = True
+            window.blit(you_lose, (0, 0))
+        if lives_boss <= 0:
+            window.blit(you_win, (0, 0))
+            mixer.music.stop()
+            finish = True
+
 
     for e1 in moments:
         if e1.type == QUIT:
             game = False
             finish = True
             sys.exit()
+
+
+
 
     display.update()
     clock.tick(120)
