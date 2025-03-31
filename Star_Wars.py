@@ -128,8 +128,9 @@ class Explotion(sprite.Sprite):
         if self.index >= len(self.images) - 1 and self.counter >= explotion_speed:
             self.kill()
 
-class Boss_explotion():
+class Boss_explotion(sprite.Sprite):
     def __init__(self, x_enemy, y_enemy):
+        super().__init__()
         self.images = []
         for num in range(1, 11):
             img = image.load(f"boss_expl/boom{num}.png")
