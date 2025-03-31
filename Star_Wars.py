@@ -31,7 +31,7 @@ class Enemy(GameSprite):
         self.rect.y += self.speed
         if self.rect.y > 1020:
             self.rect.y = -50
-            self.rect.x = randint(0, 1000)
+            self.rect.x = randint(75, 925)
             enemy_skip += 1
 
 class Hearts(GameSprite):
@@ -128,14 +128,29 @@ class Explotion(sprite.Sprite):
         if self.index >= len(self.images) - 1 and self.counter >= explotion_speed:
             self.kill()
 
-class Boss_explotion(Explotion):
+class Boss_explotion():
     def __init__(self, x_enemy, y_enemy):
-        super().__init__(x_enemy = x_enemy, y_enemy = y_enemy)
         self.images = []
         for num in range(1, 11):
             img = image.load(f"boss_expl/boom{num}.png")
-            img = transform.scale(img, (200, 200))
+            img = transform.scale(img, (250, 200))
             self.images.append(img)
+        self.index = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect.center = [x_enemy, y_enemy]
+        self.counter = 0
+    def update(self):
+        explotion_speed = 4
+        self.counter += 1
+
+        if self.counter >= explotion_speed and self.index < len(self.images) - 1:
+            self.counter = 0
+            self.index += 1
+            self.image = self.images[self.index]
+
+        if self.index >= len(self.images) - 1 and self.counter >= explotion_speed:
+            self.kill()
 
 class Heard_explotion(sprite.Sprite):
     def __init__(self, x_enemy, y_enemy):
@@ -207,7 +222,7 @@ boss_group = sprite.Group()
 boss_group.add(boss)
 
 for i in range(enemy_num):
-    enemy = Enemy('Destroyer.png.png', randint(0,1000), randint(-200, -30), 100, 100, randint(1,2))
+    enemy = Enemy('Destroyer.png.png', randint(75,925), randint(-200, -30), 100, 100, randint(1,2))
     enemy_group.add(enemy)
 
 clock = time.Clock()
@@ -233,6 +248,7 @@ bullet_sound.set_volume(0.07)
 lose_music = mixer.Sound('lose_music.mp3')
 lose_music.set_volume(0.07)
 
+pause_win = 50
 
 explotion = mixer.Sound('sound_explotion.ogg')
 explotion.set_volume(0.07)
@@ -312,9 +328,15 @@ while game:
         bullet_group.update()
 
         if destroyed >= 15 and lives_boss >= 1:
-            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
+            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, True, True, sprite.collide_mask)
             if collide_bullet_boss:
                 lives_boss -= 1
+                if collide_bullet_boss:
+                    for i in collide_bullet_boss:
+                        x_enemy = i.rect.centerx
+                        y_enemy = i.rect.centery
+                    boss_explotions = Boss_explotion(x_enemy, y_enemy)
+                    explotion_boss.add(boss_explotions)
             end_time = timer()
             ram_time = timer()
             '''отображение босса'''
@@ -333,9 +355,6 @@ while game:
             boss.comeback()
 
         elif lives_boss <= 1:
-            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, True, True, sprite.collide_mask)
-            if collide_bullet_boss:
-                lives_boss -= 1
             end_time = timer()
             '''отображение босса'''
             boss_group.draw(window)
@@ -343,14 +362,6 @@ while game:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
-            if collide_bullet_boss:
-                for i in collide_bullet_boss:
-                    x_enemy = i.rect.centerx
-                    y_enemy = i.rect.centery
-                explotions = Boss_explotion(x_enemy, y_enemy)
-                explotion_boss.add(explotions)
-        explotion_boss.draw(window)
-        explotion_boss.update()
 
         explotion_group.draw(window)
         explotion_group.update()
@@ -375,10 +386,15 @@ while game:
             finish = True
             window.blit(you_lose, (0, 0))
         if lives_boss <= 0:
-            window.blit(you_win, (0, 0))
-            mixer.music.stop()
-            finish = True
-
+            if pause_win <= 0:
+                window.blit(you_win, (0, 0))
+                mixer.music.stop()
+                finish = True
+            else:
+                pause_win -= 0.5
+        explotion_boss.draw(window)
+        print(len(explotion_boss))
+        explotion_boss.update()
 
     for e1 in moments:
         if e1.type == QUIT:
