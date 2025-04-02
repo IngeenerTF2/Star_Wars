@@ -51,6 +51,9 @@ class Boss(GameSprite):
         self.x1 = randint(30, 250)
         self.x2 = randint(300, 900)
         self.ram_speed = 10
+        self.ram_time_start = timer()
+        self.ram_time = timer()
+
     def update(self):
         if self.flag and self.rect.y <= 100:
             if self.rect.x >= self.x2:
@@ -59,6 +62,7 @@ class Boss(GameSprite):
             if self.rect.x <= self.x1:
                 self.derection = 'right'
                 self.x2 = randint(600, 1000)
+
             if self.derection == 'right':
                 self.rect.x += self.speed
             else:
@@ -75,10 +79,21 @@ class Boss(GameSprite):
             self.rect.y += self.ram_speed
             if self.rect.y >= 700:
                 self.flag = True
+                self.ram_timer_start = timer()
+        else:
+            self.comeback()
+
+        if self.flag and (timer() - self.ram_time_start >= 7):
+            self.flag = False
+            self.ram_time_start = timer()
+            # self.flag = True
+        
 
     def comeback(self):
-        if self.flag and self.rect.y >= 100:
+        if self.rect.y > 100:  # Исходная позиция по Y
             self.rect.y -= self.speed
+        else:
+            self.rect.y = 100  # Фиксируем босса на исходной позиции
 
 
 class Player(GameSprite):
@@ -181,7 +196,7 @@ class Heard_explotion(sprite.Sprite):
 true_fire = 50
 true_fire_boss = 10000
 
-enemy_num = 15
+enemy_num = 1
 
 lives_boss = 5
 
@@ -262,9 +277,19 @@ y_enemy = 0
 bullet_group_boss = sprite.Group()
 
 while game:
-
     moments = event.get()
+
     if finish != True:
+
+        window.blit(background, (0, 0))
+        window.blit(ships, (0, 10))
+        player.reset()
+        player.control()
+        enemy_group.draw(window)
+        enemy_group.update()
+        bullet_group.draw(window)
+        bullet_group.update()
+
         for ev in moments:
             if ev.type == QUIT:
                 game = False
@@ -288,14 +313,18 @@ while game:
             lives -= 1
             player.rect.x += 105
             player.rect.y += 105
-            print()
 
 
         if collide_player:
             lives -= 1
+            destroyed += 1
             player.rect.x += 75
             player.rect.y += 75
-            print()
+            for i in collide_player:
+                x_enemy = i.rect.centerx
+                y_enemy = i.rect.centery
+            explotions = Explotion(x_enemy, y_enemy)
+            explotion_group.add(explotions)
 
 
         if collide:
@@ -312,24 +341,14 @@ while game:
             destroyed += 1
             ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
 
-        window.blit(background, (0, 0))
-        window.blit(ships, (0, 10))
-        player.reset()
-        player.control()
-
-        
 
         counter_enemy_skip = font1.render('Пропущено: ' + str(enemy_skip), True, (152, 0, 228))
         window.blit(counter_enemy_skip, (735, 10))
 
-        enemy_group.draw(window)
-        enemy_group.update()
+        
 
-        bullet_group.draw(window)
-        bullet_group.update()
-
-        if destroyed >= 15 and lives_boss >= 1:
-            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, True, True, sprite.collide_mask)
+        if destroyed >= 1 and lives_boss > 0:
+            collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
             if collide_bullet_boss:
                 lives_boss -= 1
                 if collide_bullet_boss:
@@ -339,30 +358,29 @@ while game:
                     boss_explotions = Boss_explotion(x_enemy, y_enemy)
                     explotion_boss.add(boss_explotions)
             end_time = timer()
-            ram_time = timer()
+            
             '''отображение босса'''
-            boss_group.draw(window)
-            boss_group.update()
+            
             if end_time - start_time >= 1:
                 start_time = timer()
                 bullet_sound.play()
                 boss.fire_boss()
 
-            if ram_time - ram_time_start >= 5:
-                boss.flag = False
-                if boss.rect.y <= 100:
-                    ram_time_start = timer()
+            print(boss.rect.y)
+            boss_group.update()
             boss.ram()
             boss.comeback()
+            boss_group.draw(window)
+            
 
-        elif lives_boss <= 1:
+        '''elif lives_boss <= 1:
             end_time = timer()
-            '''отображение босса'''
+            'отображение босса'
             boss_group.draw(window)
             if end_time - start_time >= 4:
                 start_time = timer()
                 bullet_sound.play()
-                boss.fire_boss()
+                boss.fire_boss()'''
 
         explotion_group.draw(window)
         explotion_group.update()
@@ -382,10 +400,12 @@ while game:
             lives -= 1
         heart_group_explotion.draw(window)
         heart_group_explotion.update()
+
         if lives <= 0:
             mixer.music.stop()
             finish = True
             window.blit(you_lose, (0, 0))
+        
         if lives_boss <= 0:
             if pause_win <= 0:
                 window.blit(you_win, (0, 0))
@@ -393,18 +413,16 @@ while game:
                 finish = True
             else:
                 pause_win -= 0.5
+
         explotion_boss.draw(window)
-        print(len(explotion_boss))
         explotion_boss.update()
+        
 
     for e1 in moments:
         if e1.type == QUIT:
             game = False
             finish = True
             sys.exit()
-
-
-
 
     display.update()
     clock.tick(120)
