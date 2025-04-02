@@ -132,7 +132,7 @@ class Explotion(sprite.Sprite):
         self.counter = 0
 
     def update(self):
-        explotion_speed = 4
+        explotion_speed = 8
         self.counter += 1
 
         if self.counter >= explotion_speed and self.index < len(self.images) - 1:
@@ -157,7 +157,7 @@ class Boss_explotion(sprite.Sprite):
         self.rect.center = [x_enemy, y_enemy]
         self.counter = 0
     def update(self):
-        explotion_speed = 4
+        explotion_speed = 10
         self.counter += 1
 
         if self.counter >= explotion_speed and self.index < len(self.images) - 1:
@@ -174,7 +174,7 @@ class Heard_explotion(sprite.Sprite):
         self.images = []
         for num in range(2, 9):
             img = image.load(f"crashed_heard/heard{num}.png")
-            img = transform.scale(img, (200, 200))
+            img = transform.scale(img, (85, 85))
             self.images.append(img)
         self.index = 0
         self.image = self.images[self.index]
@@ -391,15 +391,18 @@ while game:
 
         for i in range(len(hearts_list)):
             hearts_list[i].reset()
-        if lives_collide:
+
+        if lives_collide or collide_player:
             x_heart = hearts_list[0].rect.centerx
             y_heart = hearts_list[0].rect.centery
             hearts_list.remove(hearts_list[0])
             heart_anim = Heard_explotion(x_heart, y_heart)
             heart_group_explotion.add(heart_anim)
-            lives -= 1
         heart_group_explotion.draw(window)
         heart_group_explotion.update()
+
+        explotion_boss.draw(window)
+        explotion_boss.update()
 
         if lives <= 0:
             mixer.music.stop()
@@ -414,8 +417,6 @@ while game:
             else:
                 pause_win -= 0.5
 
-        explotion_boss.draw(window)
-        explotion_boss.update()
         
 
     for e1 in moments:
