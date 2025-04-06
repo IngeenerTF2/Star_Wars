@@ -61,7 +61,7 @@ class Boss(GameSprite):
                 self.x1 = randint(0, 500)
             if self.rect.x <= self.x1:
                 self.derection = 'right'
-                self.x2 = randint(600, 1000)
+                self.x2 = randint(600, 900)
 
             if self.derection == 'right':
                 self.rect.x += self.speed
@@ -77,7 +77,7 @@ class Boss(GameSprite):
     def ram(self):
         if not self.flag:
             self.rect.y += self.ram_speed
-            if self.rect.y >= 700:
+            if self.rect.y >= 780:
                 self.flag = True
                 self.ram_timer_start = timer()
         else:
@@ -105,7 +105,7 @@ class Player(GameSprite):
             self.rect.x += self.speed
         if keys[K_s] and self.rect.y < 850:
             self.rect.y += self.speed
-        if keys[K_w] and self.rect.y > 150:
+        if keys[K_w] and self.rect.y > 350:
             self.rect.y -= self.speed
     def fire(self):
         bullet = Bullet('bullet_OneYear.png.png', self.rect.centerx -25, self.rect.y, 50, 100, 25)
@@ -196,7 +196,7 @@ class Heard_explotion(sprite.Sprite):
 true_fire = 50
 true_fire_boss = 10000
 
-enemy_num = 1
+enemy_num = 10
 
 lives_boss = 5
 
@@ -233,6 +233,8 @@ enemy_group = sprite.Group()
 
 player_group = sprite.Group()
 player_group.add(player)
+
+boss_anim_group_final = sprite.Group()
 
 boss_group = sprite.Group()
 boss_group.add(boss)
@@ -315,7 +317,7 @@ while game:
             player.rect.y += 105
 
 
-        if collide_player:
+        if collide_player and len(enemy_group) <= 0:
             lives -= 1
             destroyed += 1
             player.rect.x += 75
@@ -347,7 +349,7 @@ while game:
 
         
 
-        if destroyed >= 1 and lives_boss > 0:
+        if destroyed >= enemy_num and lives_boss > 0:
             collide_bullet_boss = sprite.groupcollide(boss_group, bullet_group, False, True, sprite.collide_mask)
             if collide_bullet_boss:
                 lives_boss -= 1
@@ -355,7 +357,7 @@ while game:
                     for i in collide_bullet_boss:
                         x_enemy = i.rect.centerx
                         y_enemy = i.rect.centery
-                    boss_explotions = Boss_explotion(x_enemy, y_enemy)
+                    boss_explotions = Explotion(x_enemy, y_enemy)
                     explotion_boss.add(boss_explotions)
             end_time = timer()
             
@@ -366,21 +368,12 @@ while game:
                 bullet_sound.play()
                 boss.fire_boss()
 
-            print(boss.rect.y)
             boss_group.update()
             boss.ram()
             boss.comeback()
             boss_group.draw(window)
             
 
-        '''elif lives_boss <= 1:
-            end_time = timer()
-            'отображение босса'
-            boss_group.draw(window)
-            if end_time - start_time >= 4:
-                start_time = timer()
-                bullet_sound.play()
-                boss.fire_boss()'''
 
         explotion_group.draw(window)
         explotion_group.update()
@@ -392,7 +385,10 @@ while game:
         for i in range(len(hearts_list)):
             hearts_list[i].reset()
 
-        if lives_collide or collide_player:
+        if lives_collide:
+            lives -= 1
+
+        if lives_collide or collide_player or collide_boss:
             x_heart = hearts_list[0].rect.centerx
             y_heart = hearts_list[0].rect.centery
             hearts_list.remove(hearts_list[0])
@@ -410,13 +406,19 @@ while game:
             window.blit(you_lose, (0, 0))
         
         if lives_boss <= 0:
+            final_anim = Boss_explotion(x_enemy, y_enemy)
+            boss_anim_group_final.add(final_anim)
+
             if pause_win <= 0:
                 window.blit(you_win, (0, 0))
                 mixer.music.stop()
+                boss_anim_group_final.empty()
                 finish = True
             else:
                 pause_win -= 0.5
 
+        boss_anim_group_final.draw(window)
+        boss_anim_group_final.update()
         
 
     for e1 in moments:
