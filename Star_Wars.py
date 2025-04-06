@@ -317,31 +317,34 @@ while game:
             player.rect.y += 105
 
 
-        if collide_player and len(enemy_group) <= 0:
+        if collide_player and len(enemy_group) >= 0:
             lives -= 1
             destroyed += 1
             player.rect.x += 75
             player.rect.y += 75
+            ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
             for i in collide_player:
                 x_enemy = i.rect.centerx
                 y_enemy = i.rect.centery
             explotions = Explotion(x_enemy, y_enemy)
             explotion_group.add(explotions)
 
-
         if collide:
             for i in collide:
                 x_enemy = i.rect.centerx
                 y_enemy = i.rect.centery
+                explotion.play()
+                destroyed += 1
+                ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
             explotions = Explotion(x_enemy, y_enemy)
             explotion_group.add(explotions)
 
 
 
-        for col in collide:
+        """for col in collide:
             explotion.play()
             destroyed += 1
-            ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
+            ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))"""
 
 
         counter_enemy_skip = font1.render('Пропущено: ' + str(enemy_skip), True, (152, 0, 228))
@@ -400,7 +403,7 @@ while game:
         explotion_boss.draw(window)
         explotion_boss.update()
 
-        if lives <= 0:
+        if lives <= 0 or enemy_skip >= 15:
             mixer.music.stop()
             finish = True
             window.blit(you_lose, (0, 0))
