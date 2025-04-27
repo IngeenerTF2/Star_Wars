@@ -25,6 +25,24 @@ class GameSprite(sprite.Sprite):
     def reset(self):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
+class Button(sprite.Sprite):
+    def __init__(self, sprite_image, sprite_x, sprite_y, size_x, size_y, text):
+        sprite.Sprite.__init__(self)
+        self.image = transform.scale(image.load(sprite_image).convert_alpha(), (size_x, size_y))
+        self.rect = self.image.get_rect()
+        self.rect.x = sprite_x
+        self.rect.y = sprite_y
+        self.mask = mask.from_surface(self.image)
+        font2 = font.Font(None, 50)
+        self.text = font2.render(text, True, (255, 255, 255))
+    def reset(self):
+        window.blit(self.text, (self.rect.x, self.rect.y-15))
+        window.blit(self.image, (self.rect.x, self.rect.y))
+
+    def collidepoint(self, x, y):
+        return self.rect.collidepoint(x, y)
+
+
 class Enemy(GameSprite):
     def update(self):
         global enemy_skip
@@ -122,7 +140,7 @@ class Explotion(sprite.Sprite):
         super().__init__()
         self.images = []
         for num in range(1, 9):
-            img = image.load(f"img/enemy_explotion{num}.png")
+            img = image.load(os.path.abspath(f"img/enemy_explotion{num}.png"))
             img = transform.scale(img, (100, 100))
             self.images.append(img)
         self.index = 0
@@ -196,7 +214,7 @@ class Heard_explotion(sprite.Sprite):
 true_fire = 50
 true_fire_boss = 10000
 
-enemy_num = 10
+enemy_num = 15
 
 lives_boss = 5
 
@@ -205,15 +223,17 @@ win_hight = 1000
 
 window = display.set_mode((win_width, win_hight))
 
-background = transform.scale(image.load('Background.png.png'), (win_width, win_hight))
+background = transform.scale(image.load(os.path.abspath('Background.png.png')), (win_width, win_hight))
 
-you_lose = transform.scale(image.load('overtv.png'), (win_width, win_hight))
+replay = Button(os.path.abspath('replay.png'), 700, 510, 120, 120, 'replay')
 
-you_win = transform.scale(image.load('wintv.png'), (win_width, win_hight))
+you_lose = transform.scale(image.load(os.path.abspath('overtv.png')), (win_width, win_hight))
 
-player = Player('Sokol_OneThousYears-1.png.png', 390, 800, 150, 150, 3)
+you_win = transform.scale(image.load(os.path.abspath('wintv.png')), (win_width, win_hight))
 
-boss = Boss('DarthShip.png.png', 250, 100, 230, 200, 3)
+player = Player(os.path.abspath('Sokol_OneThousYears-1.png.png'), 390, 800, 150, 150, 3)
+
+boss = Boss(os.path.abspath('DarthShip.png.png'), 250, 100, 230, 200, 3)
 
 explotion_boss = sprite.Group()
 
@@ -221,7 +241,7 @@ hearts_list = []
 heart_y = 250
 
 for i in range(3):
-    heart = GameSprite('crashed_heard/heard1.png', 10, heart_y, 150, 150, 0)
+    heart = GameSprite(os.path.abspath('crashed_heard/heard1.png'), 10, heart_y, 150, 150, 0)
     hearts_list.append(heart)
     heart_y += 165
 
@@ -240,8 +260,11 @@ boss_group = sprite.Group()
 boss_group.add(boss)
 
 for i in range(enemy_num):
-    enemy = Enemy('Destroyer.png.png', randint(75,925), randint(-200, -30), 100, 100, randint(1,2))
+    enemy = Enemy(os.path.abspath('Destroyer.png.png'), randint(75,925), randint(-200, -30), 100, 100, randint(1,2))
     enemy_group.add(enemy)
+
+
+
 
 clock = time.Clock()
 game = True
@@ -256,19 +279,19 @@ explotion_group = sprite.Group()
 
 heart_group_explotion = sprite.Group()
 
-mixer.music.load('background_music.mp3')
+mixer.music.load(os.path.abspath('background_music.mp3'))
 mixer.music.set_volume(0.07)
 mixer.music.play(-1)
 
-bullet_sound = mixer.Sound('blaster.mp3')
+bullet_sound = mixer.Sound(os.path.abspath('blaster.mp3'))
 bullet_sound.set_volume(0.07)
 
-lose_music = mixer.Sound('lose_music.mp3')
+lose_music = mixer.Sound(os.path.abspath('lose_music.mp3'))
 lose_music.set_volume(0.07)
 
 pause_win = 50
 
-explotion = mixer.Sound('sound_explotion.ogg')
+explotion = mixer.Sound(os.path.abspath('sound_explotion.ogg'))
 explotion.set_volume(0.07)
 start_time = timer()
 ram_time_start = timer()
@@ -338,8 +361,6 @@ while game:
                 ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
             explotions = Explotion(x_enemy, y_enemy)
             explotion_group.add(explotions)
-
-
 
         """for col in collide:
             explotion.play()
@@ -425,6 +446,35 @@ while game:
         
 
     for e1 in moments:
+        if finish != False:
+            replay.reset()
+            if e1.type == MOUSEBUTTONDOWN and e1.button == 1:
+                x, y = e1.pos
+                if replay.collidepoint(x, y):
+                    heart_group_explotion.empty()
+                    explotion_group.empty()
+                    boss_anim_group_final.empty()
+                    finish = False
+                    print('перезагрузка игры')
+                    enemy_group.empty()
+                    hearts_list = []
+                    heart_y = 250
+                    for i in range(3):
+                        heart = GameSprite(os.path.abspath('crashed_heard/heard1.png'), 10, heart_y, 150, 150, 0)
+                        hearts_list.append(heart)
+                        heart_y += 165
+                    for i in range(enemy_num):
+                        enemy = Enemy(os.path.abspath('Destroyer.png.png'), randint(75, 925), randint(-200, -30), 100, 100, randint(1, 2))
+                        enemy_group.add(enemy)
+                    enemy_num = 15
+                    enemy_skip = 0
+                    lives = 3
+                    destroyed = 0
+                    ships = font1.render('Cбито: ' + str(destroyed), True, (152, 0, 228))
+                    lives_boss = 5
+                    mixer.music.set_volume(0.07)
+                    mixer.music.play(-1)
+
         if e1.type == QUIT:
             game = False
             finish = True
